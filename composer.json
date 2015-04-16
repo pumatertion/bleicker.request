@@ -1,0 +1,23 @@
+{
+	"name": "bleicker/request",
+	"require": {
+		"symfony/http-foundation": "*",
+		"bleicker/view": "*",
+		"bleicker/exception": "*",
+		"bleicker/fastrouter": "*"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "*"
+	},
+	"authors": [
+		{
+			"name": "Carsten Bleicker",
+			"email": "carsten@bleicker.de"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"Bleicker\\Request\\": "src"
+		}
+	}
+}
