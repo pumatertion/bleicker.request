@@ -3,7 +3,7 @@
 namespace Bleicker\Request\Http;
 
 use Bleicker\Controller\ControllerInterface;
-use Bleicker\FastRouter\Router;
+use Bleicker\Framework\WebApplication;
 use Bleicker\Request\ApplicationRequest;
 use Bleicker\Request\HandlerInterface;
 use Bleicker\Request\Http\Exception\ControllerRouteDataInterfaceRequiredException;
@@ -11,14 +11,13 @@ use Bleicker\Request\Http\Exception\MethodNotSupportedException;
 use Bleicker\Request\Http\Exception\NotFoundException;
 use Bleicker\Request\MainRequestInterface;
 use Bleicker\Response\ApplicationResponse;
+use Bleicker\Response\Http\Response;
 use Bleicker\Response\MainResponseInterface;
 use Bleicker\Routing\ControllerRouteDataInterface;
-use Bleicker\Routing\RouterInterface;
-use Bleicker\View\ViewResolver;
-use Bleicker\View\ViewResolverInterface;
-use Bleicker\Response\Http\Response;
 use Bleicker\Routing\RouteInterface;
-use Bleicker\Routing\RouteDataInterface;
+use Bleicker\Routing\RouterInterface;
+use Bleicker\View\ViewInterface;
+use Bleicker\View\ViewResolverInterface;
 
 /**
  * Class Handler
@@ -48,15 +47,89 @@ class Handler implements HandlerInterface {
 	protected $router;
 
 	/**
-	 * @param MainRequestInterface $request
-	 * @param MainResponseInterface $response
+	 * @var string
 	 */
-	public function __construct(MainRequestInterface $request, MainResponseInterface $response) {
-		$this->viewResolver = new ViewResolver();
-		$this->viewResolver->setRequest($request);
-		$this->request = new ApplicationRequest($request);
-		$this->response = new ApplicationResponse($response);
-		$this->router = Router::getInstance();
+	protected $controllerName;
+
+	/**
+	 * @var string
+	 */
+	protected $methodName;
+
+	/**
+	 * @var array
+	 */
+	protected $methodArguments;
+
+	/**
+	 * @var ViewInterface
+	 */
+	protected $view;
+
+	/**
+	 * @return $this
+	 */
+	public function initialize() {
+		$this->request = new ApplicationRequest(WebApplication::getRegistry()->getImplementation(MainRequestInterface::class));
+		$this->response = new ApplicationResponse(WebApplication::getRegistry()->getImplementation(MainResponseInterface::class));
+		$this->viewResolver = WebApplication::getRegistry()->getImplementation(ViewResolverInterface::class);
+
+		$this->router = WebApplication::getRegistry()->getImplementation(RouterInterface::class);
+
+		$routerInformation = $this->invokeRouter();
+		$this->controllerName = $this->getControllerNameByRoute($routerInformation[1]);
+		$this->methodName = $this->getMethodNameByRoute($routerInformation[1]);
+		$this->methodArguments = $this->getMethodArgumentsByRouterInformation($routerInformation);
+		$this->view = $this->getView();
+		
+		return $this;
+	}
+
+	/**
+	 * @return ViewInterface
+	 */
+	protected function getView() {
+		return $this->viewResolver->setControllerName($this->controllerName)->setMethodName($this->methodName)->resolve();
+	}
+
+	/**
+	 * @param RouteInterface $route
+	 * @return string
+	 * @throws ControllerRouteDataInterfaceRequiredException
+	 */
+	protected function getControllerNameByRoute(RouteInterface $route) {
+		/** @var ControllerRouteDataInterface $controllerRouteData */
+		$controllerRouteData = $route->getData();
+
+		if (!($controllerRouteData instanceof ControllerRouteDataInterface)) {
+			throw new ControllerRouteDataInterfaceRequiredException('No instance of ControllerRouteDataInterface given', 1429338660);
+		}
+
+		return $controllerRouteData->getController();
+	}
+
+	/**
+	 * @param RouteInterface $route
+	 * @return string
+	 * @throws ControllerRouteDataInterfaceRequiredException
+	 */
+	protected function getMethodNameByRoute(RouteInterface $route) {
+		/** @var ControllerRouteDataInterface $controllerRouteData */
+		$controllerRouteData = $route->getData();
+
+		if (!($controllerRouteData instanceof ControllerRouteDataInterface)) {
+			throw new ControllerRouteDataInterfaceRequiredException('No instance of ControllerRouteDataInterface given', 1429338661);
+		}
+
+		return $controllerRouteData->getMethod();
+	}
+
+	/**
+	 * @param array $routerInformation
+	 * @return array
+	 */
+	protected function getMethodArgumentsByRouterInformation(array $routerInformation = array()) {
+		return array_key_exists(2, $routerInformation) ? (array)$routerInformation[2] : [];
 	}
 
 	/**
@@ -67,32 +140,16 @@ class Handler implements HandlerInterface {
 	 */
 	public function handle() {
 
-		$routerInformations = $this->invokeRouter();
-
-		/** @var RouteInterface $route */
-		$route = $routerInformations[1];
-
-		/** @var ControllerRouteDataInterface $controllerRouteData */
-		$controllerRouteData = $route->getData();
-
-		if (!($controllerRouteData instanceof ControllerRouteDataInterface)) {
-			throw new ControllerRouteDataInterfaceRequiredException('No instance of ControllerRouteDataInterface given', 1429187153);
-		}
-
-		$controllerName = $controllerRouteData->getController();
-		$methodName = $controllerRouteData->getMethod();
-		$methodArguments = array_key_exists(2, $routerInformations) ? (array)$routerInformations[2] : [];
-
 		/** @var ControllerInterface $controller */
-		$controller = new $controllerName();
+		$controller = new $this->controllerName();
 		$controller
 			->setRequest($this->request)
 			->setResponse($this->response)
-			->setViewResolver($this->viewResolver)
-			->setView($controller->getViewResolver()->resolve())
-			->initialize();
-		$content = call_user_func_array(array($controller, $methodName), $methodArguments);
-		if ($content === NULL) {
+			->setView($this->view);
+
+		$content = call_user_func_array(array($controller, $this->methodName), $this->methodArguments);
+
+		if ($content === NULL && $controller->hasView()) {
 			$content = $controller->getView()->render();
 		}
 

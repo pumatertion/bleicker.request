@@ -2,8 +2,6 @@
 
 namespace Bleicker\Request;
 
-use Bleicker\Response\MainResponseInterface;
-
 /**
  * Interface HandlerInterface
  *
@@ -12,13 +10,13 @@ use Bleicker\Response\MainResponseInterface;
 interface HandlerInterface {
 
 	/**
-	 * @param MainRequestInterface $request
-	 * @param MainResponseInterface $response
+	 * @return $this
 	 */
-	public function __construct(MainRequestInterface $request, MainResponseInterface $response);
+	public function initialize();
 
 	/**
 	 * @return $this
 	 */
 	public function handle();
+
 }
