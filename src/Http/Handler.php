@@ -16,8 +16,6 @@ use Bleicker\Response\MainResponseInterface;
 use Bleicker\Routing\ControllerRouteDataInterface;
 use Bleicker\Routing\RouteInterface;
 use Bleicker\Routing\RouterInterface;
-use Bleicker\View\ViewInterface;
-use Bleicker\View\ViewResolverInterface;
 
 /**
  * Class Handler
@@ -35,11 +33,6 @@ class Handler implements HandlerInterface {
 	 * @var MainResponseInterface
 	 */
 	protected $response;
-
-	/**
-	 * @var ViewResolverInterface
-	 */
-	protected $viewResolver;
 
 	/**
 	 * @var RouterInterface
@@ -62,34 +55,19 @@ class Handler implements HandlerInterface {
 	protected $methodArguments;
 
 	/**
-	 * @var ViewInterface
-	 */
-	protected $view;
-
-	/**
 	 * @return $this
 	 */
 	public function initialize() {
 		$this->request = new ApplicationRequest(WebApplication::getRegistry()->getImplementation(MainRequestInterface::class));
 		$this->response = new ApplicationResponse(WebApplication::getRegistry()->getImplementation(MainResponseInterface::class));
-		$this->viewResolver = WebApplication::getRegistry()->getImplementation(ViewResolverInterface::class);
-
 		$this->router = WebApplication::getRegistry()->getImplementation(RouterInterface::class);
 
 		$routerInformation = $this->invokeRouter();
 		$this->controllerName = $this->getControllerNameByRoute($routerInformation[1]);
 		$this->methodName = $this->getMethodNameByRoute($routerInformation[1]);
 		$this->methodArguments = $this->getMethodArgumentsByRouterInformation($routerInformation);
-		$this->view = $this->getView();
-		
-		return $this;
-	}
 
-	/**
-	 * @return ViewInterface
-	 */
-	protected function getView() {
-		return $this->viewResolver->setControllerName($this->controllerName)->setMethodName($this->methodName)->resolve();
+		return $this;
 	}
 
 	/**
@@ -145,7 +123,7 @@ class Handler implements HandlerInterface {
 		$controller
 			->setRequest($this->request)
 			->setResponse($this->response)
-			->setView($this->view);
+			->resolveView($this->methodName);
 
 		$content = call_user_func_array(array($controller, $this->methodName), $this->methodArguments);
 
