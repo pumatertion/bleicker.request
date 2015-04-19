@@ -7,6 +7,6 @@ namespace Bleicker\Request;
  *
  * @package Bleicker\Request
  */
-interface MainRequestInterface extends RequestInterface {
+interface MainRequestInterface {
 
 }

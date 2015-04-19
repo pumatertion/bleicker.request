@@ -16,7 +16,8 @@ use Bleicker\Response\MainResponseInterface;
 use Bleicker\Routing\ControllerRouteDataInterface;
 use Bleicker\Routing\RouteInterface;
 use Bleicker\Routing\RouterInterface;
-
+use Bleicker\Request\ApplicationRequestInterface;
+use Bleicker\Response\ResponseInterface as ApplicationResponseInterface;
 /**
  * Class Handler
  *
@@ -25,12 +26,12 @@ use Bleicker\Routing\RouterInterface;
 class Handler implements HandlerInterface {
 
 	/**
-	 * @var MainRequestInterface
+	 * @var ApplicationRequestInterface
 	 */
 	protected $request;
 
 	/**
-	 * @var MainResponseInterface
+	 * @var ApplicationResponseInterface
 	 */
 	protected $response;
 
@@ -144,9 +145,7 @@ class Handler implements HandlerInterface {
 	 * @throws Exception\MethodNotSupportedException
 	 */
 	protected function invokeRouter() {
-		/** @var Request $request */
-		$request = $this->request->getMainRequest();
-		$routeResult = $this->router->dispatch($request->getPathInfo(), $request->getMethod());
+		$routeResult = $this->router->dispatch($this->request->getMainRequest()->getPathInfo(), $this->request->getMainRequest()->getMethod());
 		switch ($routeResult[0]) {
 			case RouterInterface::NOT_FOUND:
 				throw new NotFoundException('Not Found', 1429187150);
