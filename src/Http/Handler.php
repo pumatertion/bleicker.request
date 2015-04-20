@@ -129,13 +129,11 @@ class Handler implements HandlerInterface {
 
 		$content = call_user_func_array(array($controller, $this->methodName), $this->methodArguments);
 
-		if ($content === NULL && $controller->hasView()) {
-			$content = $controller->getView()->render();
+		if(!empty($content)){
+			/** @var Response $httpResponse */
+			$httpResponse = $this->response->getMainResponse();
+			$httpResponse->setContent($content);
 		}
-
-		/** @var Response $httpResponse */
-		$httpResponse = $this->response->getMainResponse();
-		$httpResponse->setContent($content);
 
 		return $this;
 	}
