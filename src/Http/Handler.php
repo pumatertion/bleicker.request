@@ -125,6 +125,7 @@ class Handler implements HandlerInterface {
 		$controller
 			->setRequest($this->request)
 			->setResponse($this->response)
+			->resolveFormat($this->methodName)
 			->resolveView($this->methodName);
 
 		$content = call_user_func_array(array($controller, $this->methodName), $this->methodArguments);
