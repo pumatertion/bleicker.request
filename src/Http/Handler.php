@@ -5,6 +5,7 @@ namespace Bleicker\Request\Http;
 use Bleicker\Controller\ControllerInterface;
 use Bleicker\Framework\Registry;
 use Bleicker\Request\ApplicationRequest;
+use Bleicker\Request\ApplicationRequestInterface;
 use Bleicker\Request\HandlerInterface;
 use Bleicker\Request\Http\Exception\ControllerRouteDataInterfaceRequiredException;
 use Bleicker\Request\Http\Exception\MethodNotSupportedException;
@@ -13,11 +14,11 @@ use Bleicker\Request\MainRequestInterface;
 use Bleicker\Response\ApplicationResponse;
 use Bleicker\Response\Http\Response;
 use Bleicker\Response\MainResponseInterface;
+use Bleicker\Response\ResponseInterface as ApplicationResponseInterface;
 use Bleicker\Routing\ControllerRouteDataInterface;
 use Bleicker\Routing\RouteInterface;
 use Bleicker\Routing\RouterInterface;
-use Bleicker\Request\ApplicationRequestInterface;
-use Bleicker\Response\ResponseInterface as ApplicationResponseInterface;
+
 /**
  * Class Handler
  *
