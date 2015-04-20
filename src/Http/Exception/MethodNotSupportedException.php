@@ -3,6 +3,7 @@
 namespace Bleicker\Request\Http\Exception;
 
 use Bleicker\Exception\ThrowableException as Exception;
+
 /**
  * Class MethodNotSupportedException
  *

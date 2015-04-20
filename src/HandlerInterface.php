@@ -18,5 +18,4 @@ interface HandlerInterface {
 	 * @return $this
 	 */
 	public function handle();
-
 }
