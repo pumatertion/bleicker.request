@@ -2,8 +2,8 @@
 
 namespace Bleicker\Request\Http;
 
-use Bleicker\Request\RequestInterface;
 use Bleicker\Request\MainRequestInterface;
+use Bleicker\Request\RequestInterface;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
 
 /**
