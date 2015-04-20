@@ -4,6 +4,7 @@ namespace Bleicker\Request\Http;
 
 use Bleicker\Controller\ControllerInterface;
 use Bleicker\Framework\Registry;
+use Bleicker\Framework\Utility\Arrays;
 use Bleicker\Request\ApplicationRequest;
 use Bleicker\Request\ApplicationRequestInterface;
 use Bleicker\Request\HandlerInterface;
@@ -18,6 +19,8 @@ use Bleicker\Response\ResponseInterface as ApplicationResponseInterface;
 use Bleicker\Routing\ControllerRouteDataInterface;
 use Bleicker\Routing\RouteInterface;
 use Bleicker\Routing\RouterInterface;
+use ReflectionMethod;
+use ReflectionParameter;
 
 /**
  * Class Handler
@@ -67,7 +70,7 @@ class Handler implements HandlerInterface {
 		$routerInformation = $this->invokeRouter();
 		$this->controllerName = $this->getControllerNameByRoute($routerInformation[1]);
 		$this->methodName = $this->getMethodNameByRoute($routerInformation[1]);
-		$this->methodArguments = $this->getMethodArgumentsByRouterInformation($routerInformation);
+		$this->methodArguments = $this->getMethodArgumentsByRouterInformation($this->controllerName, $this->methodName, $routerInformation[2]);
 
 		return $this;
 	}
@@ -105,15 +108,23 @@ class Handler implements HandlerInterface {
 	}
 
 	/**
-	 * @param array $routerInformation
+	 * @param string $controllerName
+	 * @param string $methodName
+	 * @param array $arguments
 	 * @return array
 	 */
-	protected function getMethodArgumentsByRouterInformation(array $routerInformation = array()) {
-		return array_key_exists(2, $routerInformation) ? (array)$routerInformation[2] : [];
+	protected function getMethodArgumentsByRouterInformation($controllerName, $methodName, array $arguments = array()) {
+		$methodArguments = [];
+		$methodReflection = new \ReflectionMethod($controllerName, $methodName);
+		$availableParameters = $methodReflection->getParameters();
+		/** @var ReflectionParameter $parameter */
+		foreach($availableParameters as $parameter){
+			$methodArguments[$parameter->getName()] = Arrays::getValueByPath($arguments, $parameter->getName());
+		}
+		return $methodArguments;
 	}
 
 	/**
-	 * @todo reflection of callable controller->method and passing arguments in right order
 	 * @todo mapping to objects here?
 	 * @return $this
 	 * @throws ControllerRouteDataInterfaceRequiredException
