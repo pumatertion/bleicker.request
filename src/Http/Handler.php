@@ -3,8 +3,8 @@
 namespace Bleicker\Request\Http;
 
 use Bleicker\Controller\ControllerInterface;
-use Bleicker\Framework\Registry;
 use Bleicker\Framework\Utility\Arrays;
+use Bleicker\Framework\Utility\ObjectManager;
 use Bleicker\Request\ApplicationRequest;
 use Bleicker\Request\ApplicationRequestInterface;
 use Bleicker\Request\HandlerInterface;
@@ -63,9 +63,9 @@ class Handler implements HandlerInterface {
 	 * @return $this
 	 */
 	public function initialize() {
-		$this->request = new ApplicationRequest(Registry::getImplementation(MainRequestInterface::class));
-		$this->response = new ApplicationResponse(Registry::getImplementation(MainResponseInterface::class));
-		$this->router = Registry::getImplementation(RouterInterface::class);
+		$this->request = new ApplicationRequest(ObjectManager::get(MainRequestInterface::class));
+		$this->response = new ApplicationResponse(ObjectManager::get(MainResponseInterface::class));
+		$this->router = ObjectManager::get(RouterInterface::class);
 
 		$routerInformation = $this->invokeRouter();
 		$this->controllerName = $this->getControllerNameByRoute($routerInformation[1]);
