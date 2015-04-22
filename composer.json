@@ -3,8 +3,7 @@
 	"require": {
 		"symfony/http-foundation": "~2.6",
 		"bleicker/view": "dev-master",
-		"bleicker/exception": "dev-master",
-		"bleicker/fastrouter": "dev-master"
+		"bleicker/exception": "dev-master"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "*"
