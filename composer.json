@@ -1,9 +1,7 @@
 {
 	"name": "bleicker/request",
 	"require": {
-		"symfony/http-foundation": "~2.6",
-		"bleicker/view": "dev-master",
-		"bleicker/exception": "dev-master"
+		"symfony/http-foundation": "~2.6"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "*"
