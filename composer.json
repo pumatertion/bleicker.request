@@ -1,5 +1,6 @@
 {
 	"name": "bleicker/request",
+	"type": "library",
 	"require": {
 		"symfony/http-foundation": "~2.6"
 	},
