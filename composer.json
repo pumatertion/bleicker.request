@@ -2,7 +2,6 @@
 	"name": "bleicker/request",
 	"type": "library",
 	"require": {
-		"symfony/http-foundation": "~2.6"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "*"
